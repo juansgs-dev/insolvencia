@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       },
       include: {
         rol: true
-      }
+      },
     })
 
     if (!usuario) {
@@ -43,9 +43,9 @@ export async function POST(request: Request) {
     }
 
     const token = await generateToken({
-      userId: usuario.id,
+      userId: Number(usuario.id),
       email: usuario.email,
-      rolId: usuario.rol_id,
+      rolId: Number(usuario.rolId),
       rolNombre: usuario.rol.nombre,
     })
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
         nombre: usuario.nombre,
         email: usuario.email,
         rol: usuario.rol.nombre,
-        rolId: usuario.rol_id,
+        rolId: usuario.rolId,
       }
     })
   } catch (error) {

@@ -684,7 +684,6 @@
                       {field.name === "Mensaje" ? (
                         <textarea
                           className="w-full rounded-xl p-4 bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 font-light"
-                          rows="4"
                           placeholder={`Escribe tu ${field.name.toLowerCase()}...`}
                         />
                       ) : (

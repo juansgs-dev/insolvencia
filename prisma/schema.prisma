@@ -7,25 +7,51 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  generatedFileExtension  = "ts"
+  importFileExtension     = "ts"
 }
 
 datasource db {
   provider = "postgresql"
+  schemas = ["insolvencia"]
 }
 
 model Rol {
-  id       Int       @id @default(autoincrement())
-  nombre   String
-  usuarios Usuario[]
+  id            BigInt      @id @default(autoincrement())
+  nombre        String      @unique @db.VarChar(50)
+  descripcion   String?     @db.Text
+  creadoEn      DateTime    @map("created_at") @default(now()) @db.Timestamp(0) 
+  usuarios      Usuario[]
+
+  @@map("roles")
+  @@schema("insolvencia")
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  email     String   @unique
-  password  String
-  activo    Boolean  @default(true)
-  rol_id    Int
-  rol       Rol      @relation(fields: [rol_id], references: [id])
-  creadoEn  DateTime @default(now())
+  id          BigInt      @id @default(autoincrement())
+  nombre      String      @db.VarChar(50)
+  email       String      @unique @db.VarChar(50)
+  password    String      @map("password") @db.VarChar(255)
+  activo      Boolean?    @default(true) 
+  rolId       BigInt      @map("rol_id")
+  rol         Rol         @relation(fields: [rolId], references: [id])
+  creadoEn    DateTime    @map("created_at") @default(now()) @db.Timestamp(0)
+  actualizadoEn DateTime? @map("updated_at") @default(now()) @updatedAt @db.Timestamp(0)
+  documentos  Documento[]
+
+  @@map("usuarios")
+  @@schema("insolvencia")
+}
+
+model Documento {
+  id              BigInt    @id @default(autoincrement())
+  usuarioId       BigInt    @map("usuario_id")
+  nombreArchivo   String    @map("nombre_archivo") @db.VarChar(255)
+  tipo            String    @db.VarChar(100)
+  url             String    @db.Text
+  creadoEn        DateTime  @map("created_at") @default(now()) @db.Timestamp(0)
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@map("documentos")
+  @@schema("insolvencia")
 }

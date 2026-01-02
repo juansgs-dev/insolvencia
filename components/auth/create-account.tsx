@@ -9,17 +9,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAuth } from "@/lib/hooks/use-auth"
 import { Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/lib/hooks/use-auth"
 
-export function LoginForm() {
+export function RegisterForm() {
   const router = useRouter()
   const { login } = useAuth()
 
   const [formData, setFormData] = useState({
+    nombre: "",
     email: "",
     password: "",
+    confirmPassword: "",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -28,31 +30,41 @@ export function LoginForm() {
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
+    transition: { duration: 0.5 },
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden")
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          email: formData.email,
+          password: formData.password,
+        }),
       })
 
       const data = await response.json()
 
-      console.log(data);
-
-      if (!response.ok) throw new Error(data.error || "Error en el inicio de sesión")
+      if (!response.ok) {
+        throw new Error(data.error || "Error al crear la cuenta")
+      }
 
       login(data.token, data.usuario)
       router.push("/")
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Error en el inicio de sesión")
+      setError(error instanceof Error ? error.message : "Error al crear la cuenta")
     } finally {
       setIsLoading(false)
     }
@@ -68,9 +80,11 @@ export function LoginForm() {
       <Card className="shadow-xl border border-blue-100/40 backdrop-blur-xl bg-white/80 rounded-2xl">
         <CardHeader className="text-center space-y-1">
           <CardTitle className="text-3xl font-bold text-[#1e3a8a]">
-            Iniciar Sesión
+            Crear Cuenta
           </CardTitle>
-          <p className="text-gray-600 text-sm sm:text-base">Accede a tu cuenta</p>
+          <p className="text-gray-600 text-sm sm:text-base">
+            Regístrate para comenzar
+          </p>
         </CardHeader>
 
         <CardContent>
@@ -88,12 +102,32 @@ export function LoginForm() {
             )}
 
             <motion.div variants={fadeIn} className="space-y-2">
-              <Label className="font-medium text-gray-700">Correo Electrónico</Label>
+              <Label className="font-medium text-gray-700">Nombre</Label>
+              <Input
+                type="text"
+                placeholder="Tu nombre"
+                value={formData.nombre}
+                onChange={(e) =>
+                  setFormData({ ...formData, nombre: e.target.value })
+                }
+                required
+                maxLength={50}
+                disabled={isLoading}
+                className="rounded-xl border-gray-300 focus:ring-[#1e3a8a]"
+              />
+            </motion.div>
+
+            <motion.div variants={fadeIn} className="space-y-2">
+              <Label className="font-medium text-gray-700">
+                Correo Electrónico
+              </Label>
               <Input
                 type="email"
                 placeholder="correo@ejemplo.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
                 maxLength={50}
                 disabled={isLoading}
@@ -107,7 +141,30 @@ export function LoginForm() {
                 type="password"
                 placeholder="••••••••"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                required
+                maxLength={20}
+                disabled={isLoading}
+                className="rounded-xl border-gray-300 focus:ring-[#1e3a8a]"
+              />
+            </motion.div>
+
+            <motion.div variants={fadeIn} className="space-y-2">
+              <Label className="font-medium text-gray-700">
+                Confirmar Contraseña
+              </Label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    confirmPassword: e.target.value,
+                  })
+                }
                 required
                 maxLength={20}
                 disabled={isLoading}
@@ -124,27 +181,20 @@ export function LoginForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Iniciando...
+                    Creando cuenta...
                   </>
                 ) : (
-                  "Ingresar"
+                  "Registrarse"
                 )}
               </Button>
             </motion.div>
 
-            <div className="pt-2 flex flex-col items-center gap-2 text-sm">
+            <div className="pt-2 text-center text-sm">
               <Link
-                href="/forgot-password"
+                href="/login"
                 className="text-[#1e3a8a] hover:text-[#1e40af] font-medium transition"
               >
-                ¿Olvidaste tu contraseña?
-              </Link>
-
-              <Link
-                href="/register"
-                className="text-[#1e3a8a] hover:text-[#1e40af] font-medium transition"
-              >
-                Crear cuenta nueva
+                ¿Ya tienes cuenta? Inicia sesión
               </Link>
             </div>
           </motion.form>
