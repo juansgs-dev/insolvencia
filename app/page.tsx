@@ -25,14 +25,13 @@ import Link from "next/link";
 import { useState } from "react";
 import Image from 'next/image';
 import { useAuth } from "@/lib/context/AuthContext"
+import UserDropdown from "@/components/UserDropdown";
+import UserDropdownMobile from "@/components/UserDropdownMobile";
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { user, loading, isAuthenticated, logout } = useAuth()
-
-  console.log(user);
-  console.log(isAuthenticated);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -105,21 +104,14 @@ export default function Home() {
                 </Link>
               )}
 
-              {!loading && isAuthenticated && (
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-700 font-medium">
-                    {user?.fullName}
-                  </span>
-                  <motion.button
-                    onClick={logout}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 rounded-xl border border-[#1e3a8a] text-[#1e3a8a] font-semibold hover:bg-blue-50 transition-all"
-                  >
-                    Cerrar sesión
-                  </motion.button>
-                </div>
+              {!loading && isAuthenticated && user && (
+                <UserDropdown
+                  fullName={user.fullName}
+                  role={user.role}
+                  onLogout={logout}
+                />
               )}
+
             </div>
 
             <motion.button
@@ -163,17 +155,13 @@ export default function Home() {
                   </Link>
                 )}
 
-                {!loading && isAuthenticated && (
-                  <motion.button
-                    onClick={() => {
-                      logout()
-                      setIsMenuOpen(false)
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full px-4 py-3 rounded-xl border border-[#1e3a8a] text-[#1e3a8a] font-semibold hover:bg-blue-50 transition-all"
-                  >
-                    Cerrar sesión
-                  </motion.button>
+                {!loading && isAuthenticated && user && (
+                  <UserDropdownMobile
+                    fullName={user.fullName}
+                    role={user.role}
+                    onLogout={logout}
+                    onClose={() => setIsMenuOpen(false)}
+                  />
                 )}
               </div>
             </div>
@@ -241,16 +229,6 @@ export default function Home() {
               >
                 Solicitar asesoría
               </motion.button>
-
-              <Link href="/login">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="px-8 py-4 border-2 border-[#1e3a8a] text-[#1e3a8a] rounded-xl font-semibold hover:bg-blue-50 transition-all"
-                >
-                  Iniciar sesión
-                </motion.button>
-              </Link>
             </motion.div>
           </motion.div>
 

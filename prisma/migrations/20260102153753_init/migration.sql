@@ -54,4 +54,4 @@ ALTER TABLE "documents" ADD CONSTRAINT "documents_user_id_fkey" FOREIGN KEY ("us
 INSERT INTO roles (name, description)
 VALUES
   ('admin', 'System administrator with full access'),
-  ('customer', 'Standard customer user');
+  ('Usuario', 'Standard customer user');
