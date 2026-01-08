@@ -3,71 +3,73 @@ import { prisma } from "@/lib/prisma"
 import { hashPassword, generateToken } from "@/lib/auth"
 import { registerSchema } from "@/lib/validations"
 
-
 export async function POST(request: Request) {
   try {
     const body = await request.json()
 
+    console.log(body);
+
     const validation = registerSchema.safeParse(body)
     if (!validation.success) {
       return NextResponse.json(
-        { error: "Datos inválidos", details: validation.error.message },
+        { error: "Invalid data" },
         { status: 400 }
       )
     }
 
-    const { nombre, email, password } = validation.data
+    const { fullName, email, password } = validation.data
 
-    const existeUsuario = await prisma.usuario.findFirst({
+    const existingUser = await prisma.user.findUnique({
       where: { email },
     })
 
-    if (existeUsuario) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: "El correo ya está registrado" },
+        { error: "Email already registered" },
         { status: 409 }
       )
     }
 
     const hashedPassword = await hashPassword(password)
 
-    const usuario = await prisma.usuario.create({
+    const user = await prisma.user.create({
       data: {
-        nombre,
+        fullName,
         email,
         password: hashedPassword,
-        activo: true,
-        rolId: 1,
+        isActive: true,
+        roleId: 2,
       },
       include: {
-        rol: true,
+        role: true,
       },
     })
 
     const token = await generateToken({
-      userId: Number(usuario.id),
-      email: usuario.email,
-      rolId: Number(usuario.rolId),
-      rolNombre: usuario.rol.nombre,
+      userId: Number(user.id),
+      email: user.email,
+      rolId: Number(user.roleId),
+      roleName: user.role.name,
     })
 
     return NextResponse.json(
       {
         token,
         usuario: {
-          id: usuario.id,
-          nombre: usuario.nombre,
-          email: usuario.email,
-          rol: usuario.rol.nombre,
-          rolId: usuario.rolId,
+          id: Number(user.id),
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role.name,
+          roleId: Number(user.roleId),
         },
       },
       { status: 201 }
     )
   } catch (error) {
-    console.error("Error en register:", error)
+
+    console.log(error);
     return NextResponse.json(
-      { error: "Error en el servidor" },
+      { error: "Server error" },
       { status: 500 }
     )
   }

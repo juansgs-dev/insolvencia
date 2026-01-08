@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAuth } from "@/lib/hooks/use-auth"
 import { Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/lib/context/AuthContext"
 
 export function LoginForm() {
-  const router = useRouter()
-  const { login } = useAuth()
+  const router = useRouter();
+  const { refreshUser } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -49,7 +49,7 @@ export function LoginForm() {
 
       if (!response.ok) throw new Error(data.error || "Error en el inicio de sesión")
 
-      login(data.token, data.usuario)
+      await refreshUser()
       router.push("/")
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error en el inicio de sesión")

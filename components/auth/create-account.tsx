@@ -19,6 +19,7 @@ export function RegisterForm() {
 
   const [formData, setFormData] = useState({
     nombre: "",
+    phoneNumber: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -49,7 +50,8 @@ export function RegisterForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre: formData.nombre,
+          fullName: formData.nombre,
+          phoneNumber: formData.phoneNumber || undefined,
           email: formData.email,
           password: formData.password,
         }),
@@ -88,12 +90,7 @@ export function RegisterForm() {
         </CardHeader>
 
         <CardContent>
-          <motion.form
-            onSubmit={handleSubmit}
-            initial="initial"
-            animate="animate"
-            className="space-y-4"
-          >
+          <motion.form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -112,6 +109,23 @@ export function RegisterForm() {
                 }
                 required
                 maxLength={50}
+                disabled={isLoading}
+                className="rounded-xl border-gray-300 focus:ring-[#1e3a8a]"
+              />
+            </motion.div>
+
+            <motion.div variants={fadeIn} className="space-y-2">
+              <Label className="font-medium text-gray-700">
+                Teléfono (opcional)
+              </Label>
+              <Input
+                type="tel"
+                placeholder="+57 300 000 0000"
+                value={formData.phoneNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, phoneNumber: e.target.value })
+                }
+                maxLength={20}
                 disabled={isLoading}
                 className="rounded-xl border-gray-300 focus:ring-[#1e3a8a]"
               />

@@ -15,9 +15,13 @@ export const loginSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>
 
 export const registerSchema = z.object({
-  nombre: z.string().min(2).max(50),
+  fullName: z.string().min(2).max(50),
   email: z.string().email().max(50),
-  password: z.string().min(6).max(20),
+  password: z.string().min(8).max(20),
+  phoneNumber: z
+    .string()
+    .regex(/^3\d{9}$/, "Número de celular colombiano inválido")
+    .optional(),
 })
 
 export type registerInput = z.infer<typeof registerSchema>
