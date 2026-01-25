@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,8 +15,8 @@ import Link from "next/link"
 import { useAuth } from "@/lib/context/AuthContext"
 
 export function LoginForm() {
-  const router = useRouter();
-  const { refreshUser } = useAuth();
+  const router = useRouter()
+  const { refreshUser } = useAuth()
 
   const [formData, setFormData] = useState({
     email: "",
@@ -28,7 +29,7 @@ export function LoginForm() {
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
+    transition: { duration: 0.5 },
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,10 +46,13 @@ export function LoginForm() {
 
       const data = await response.json()
 
-      if (!response.ok) throw new Error(data.error || "Error en el inicio de sesión")
+      if (!response.ok) {
+        throw new Error(data.error || "Error en el inicio de sesión")
+      }
 
       await refreshUser()
-      router.push("/")
+      toast.success("Inicio de sesión exitoso")
+      setTimeout(() => router.push("/"), 500)
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error en el inicio de sesión")
     } finally {
@@ -91,7 +95,9 @@ export function LoginForm() {
                 type="email"
                 placeholder="correo@ejemplo.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
                 maxLength={50}
                 disabled={isLoading}
@@ -105,7 +111,9 @@ export function LoginForm() {
                 type="password"
                 placeholder="••••••••"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
                 maxLength={20}
                 disabled={isLoading}
