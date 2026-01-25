@@ -7,8 +7,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
 
-    console.log(body);
-
     const validation = registerSchema.safeParse(body)
     if (!validation.success) {
       return NextResponse.json(
@@ -46,9 +44,9 @@ export async function POST(request: Request) {
     })
 
     const token = await generateToken({
-      userId: Number(user.id),
+      sub: user.id.toString(),
       email: user.email,
-      rolId: Number(user.roleId),
+      rolId: user.role.id.toString(),
       roleName: user.role.name,
     })
 

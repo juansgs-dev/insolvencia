@@ -27,8 +27,12 @@ import Image from 'next/image';
 import { useAuth } from "@/lib/context/AuthContext"
 import UserDropdown from "@/components/UserDropdown";
 import UserDropdownMobile from "@/components/UserDropdownMobile";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+
+  const router = useRouter()
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { user, loading, isAuthenticated, logout } = useAuth()
@@ -57,6 +61,14 @@ export default function Home() {
       }
     }
   };
+
+  const handleAdvisoryClick = () => {
+    if (!isAuthenticated) {
+      router.push("/login")
+    } else {
+      router.push("/request-advisory")
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 font-poppins">
@@ -226,6 +238,7 @@ export default function Home() {
                 }}
                 whileTap={{ scale: 0.97 }}
                 className="px-8 py-4 bg-[#1e3a8a] text-white rounded-xl font-semibold shadow-lg hover:bg-[#1e40af] transition-all"
+                onClick={handleAdvisoryClick}
               >
                 Solicitar asesoría
               </motion.button>
