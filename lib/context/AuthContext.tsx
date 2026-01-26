@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
+import { toast } from "sonner"
 
 type User = {
   id: string
@@ -49,11 +50,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   const logout = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    })
-    setUser(null)
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+
+      if (!res.ok) {
+        toast.error("No se pudo cerrar sesión")
+        return
+      }
+
+      setUser(null)
+      toast.success("Sesión cerrada correctamente")
+    } catch (error) {
+      toast.error("Error al cerrar sesión")
+    }
   }
 
   return (

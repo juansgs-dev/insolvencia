@@ -52,7 +52,7 @@ export function LoginForm() {
 
       await refreshUser()
       toast.success("Inicio de sesión exitoso")
-      setTimeout(() => router.push("/"), 500)
+      router.push("/");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error en el inicio de sesión")
     } finally {
