@@ -14,8 +14,6 @@ export async function GET() {
 
   const user = await verifyToken(token);
 
-  console.log(user);
-
   if (!user || user.roleName !== "admin") {
     return NextResponse.json({ message: "No autorizado" }, { status: 403 })
   }
