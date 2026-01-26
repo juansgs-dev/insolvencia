@@ -118,7 +118,6 @@ function SelectItem({
 }: SelectItemProps) {
   const stringValue = value != null ? String(value) : undefined
 
-  // Evita items con value undefined/null (causan key duplicada 'undefined')
   if (stringValue === undefined) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('[SelectItem] value undefined/null. Item omitido:', { children })

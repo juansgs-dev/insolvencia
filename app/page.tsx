@@ -35,7 +35,9 @@ export default function Home() {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { user, loading, isAuthenticated, logout } = useAuth()
+  const { user, loading, isAuthenticated, logout } = useAuth();
+
+  const isAdmin = user?.role === "admin"
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -103,6 +105,18 @@ export default function Home() {
                 </motion.a>
               ))}
 
+              {!loading && isAuthenticated && isAdmin && (
+                <Link href="/admin/documents">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 rounded-xl border border-[#1e3a8a] text-[#1e3a8a] font-semibold hover:bg-blue-50 transition-all"
+                  >
+                    Administrador
+                  </motion.button>
+                </Link>
+              )}
+
               {!loading && !isAuthenticated && (
                 <Link href="/login">
                   <motion.button
@@ -153,6 +167,16 @@ export default function Home() {
                   {item}
                 </a>
               ))}
+
+              {!loading && isAuthenticated && isAdmin && (
+                <Link
+                  href="/admin/documents"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block w-full text-center py-3 rounded-xl border border-[#1e3a8a] text-[#1e3a8a] font-semibold"
+                >
+                  Administrador
+                </Link>
+              )}
 
               <div className="pt-4 border-t border-gray-200">
                 {!loading && !isAuthenticated && (

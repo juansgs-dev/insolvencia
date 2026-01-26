@@ -11,7 +11,7 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const todos = await prisma.rol.findMany({
+  const todos = await prisma.role.findMany({
       select: { id: true }
   });
   console.log('Emails en la BD:', todos);

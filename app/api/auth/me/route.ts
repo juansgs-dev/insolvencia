@@ -11,7 +11,7 @@ interface JwtPayload {
 export async function GET() {
   try {
     const cookieStore = cookies()
-    const token = (await cookieStore).get("auth_token")?.value
+    const token = (await cookieStore).get("auth_token")?.value;
 
     if (!token) {
       return NextResponse.json({ user: null }, { status: 200 })
