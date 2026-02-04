@@ -64,9 +64,11 @@ export async function POST(request: Request) {
       { status: 201 }
     )
   } catch (error) {
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    )
-  }
+  console.error("REGISTER ERROR:", error);
+
+  return NextResponse.json(
+    { error: "Server error" },
+    { status: 500 }
+  );
+}
 }
