@@ -1,33 +1,41 @@
+SET search_path TO insolvencia;
+
+DROP TABLE IF EXISTS documentos CASCADE;
+DROP TABLE IF EXISTS usuarios CASCADE;
+DROP TABLE IF EXISTS roles CASCADE;
+
 CREATE TABLE roles (
   id BIGSERIAL PRIMARY KEY,
-  nombre VARCHAR(50) UNIQUE NOT NULL,
-  descripcion TEXT,
+  name VARCHAR(50) UNIQUE NOT NULL,
+  description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO roles (id, nombre, descripcion, created_at) VALUES
-  (1, 'Administrador', 'Acceso completo al sistema', '2025-10-23 07:26:49'),
-  (2, 'Cliente', 'Puede gestionar sus documentos', '2025-10-23 07:26:49');
-
-CREATE TABLE usuarios (
+CREATE TABLE users (
   id BIGSERIAL PRIMARY KEY,
-  nombre VARCHAR(50) NOT NULL,
+  full_name VARCHAR(50) NOT NULL,
   email VARCHAR(50) UNIQUE NOT NULL,
+  phone_number VARCHAR(20),
   password VARCHAR(255) NOT NULL,
-  rol_id BIGINT NOT NULL REFERENCES roles(id) ON UPDATE CASCADE ON DELETE RESTRICT,
-  activo BOOLEAN DEFAULT TRUE,
+  is_active BOOLEAN DEFAULT TRUE,
+  is_email_verified BOOLEAN DEFAULT FALSE,
+  failed_attempts INT DEFAULT 0,
+  blocked_until TIMESTAMP,
+  last_login_at TIMESTAMP,
+  role_id BIGINT NOT NULL REFERENCES roles(id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO usuarios (id, nombre, email, password, rol_id, activo, created_at, updated_at) VALUES
-  (1, 'Administrador Sistema', 'admin@insolvencia.com', '$2a$10$v4J0ukHy2.Q3VXBOWpbm4O/vcL4BUUO8uGR.O9qvBvqqYFi/wGWty', 1, TRUE, '2025-10-23 07:26:49', '2025-10-23 20:10:13');
-
-CREATE TABLE documentos (
+CREATE TABLE documents (
   id BIGSERIAL PRIMARY KEY,
-  usuario_id BIGINT NOT NULL REFERENCES usuarios(id) ON UPDATE CASCADE ON DELETE CASCADE,
-  nombre_archivo VARCHAR(255) NOT NULL,
-  tipo VARCHAR(100) NOT NULL,
-  url TEXT NOT NULL,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  file_name VARCHAR(255) NOT NULL,
+  file_type VARCHAR(100) NOT NULL,
+  file_url TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO roles (id, name, description) VALUES
+(1, 'Administrador', 'Acceso completo al sistema'),
+(2, 'Cliente', 'Puede gestionar sus documentos');
