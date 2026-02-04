@@ -1,21 +1,13 @@
-import "dotenv/config";
+import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../generated/prisma/client'
+import { Pool } from 'pg'
 
-const connectionString = `${process.env.DATABASE_URL}`
-
-const adapter = new PrismaPg({ connectionString })
-const prisma = new PrismaClient({
-  adapter,
-  log: ['query', 'info', 'warn']
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
 })
 
-async function main() {
-  const todos = await prisma.role.findMany({
-      select: { id: true }
-  });
-}
-
-main();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg(pool),
+})
 
 export { prisma }

@@ -1,12 +1,11 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-  generatedFileExtension  = "ts"
-  importFileExtension     = "ts"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
   schemas  = ["insolvencia"]
 }
 
