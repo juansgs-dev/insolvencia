@@ -42,13 +42,22 @@ model User {
 }
 
 model Document {
-  id          BigInt   @id @default(autoincrement())
-  userId      BigInt   @map("user_id")
-  fileName    String   @map("file_name") @db.VarChar(255)
-  fileType    String   @map("file_type") @db.VarChar(100)
-  fileUrl     String   @map("file_url") @db.Text
-  createdAt   DateTime @map("created_at") @default(now()) @db.Timestamp(0)
-  user        User     @relation(fields: [userId], references: [id])
+  id               BigInt   @id @default(autoincrement())
+  userId           BigInt   @map("user_id")
+  fileName         String   @map("file_name") @db.VarChar(255)
+  fileType         String   @map("file_type") @db.VarChar(100)
+  fileUrl          String   @map("file_url") @db.Text
+  documentType     String   @map("document_type") @db.VarChar(50)
+  description      String?  @db.Text
+  occupation       String   @db.VarChar(150)
+  hasAssets        Boolean  @map("has_assets")
+  hasPayrollLoans  Boolean  @map("has_payroll_loans")
+  creditorCount    Int      @map("creditor_count")
+  delinquencyTime  String   @map("delinquency_time") @db.VarChar(100)
+  hasEmbargoes     Boolean  @map("has_embargoes")
+  totalDebtCapital Decimal  @map("total_debt_capital") @db.Decimal(15, 2)
+  createdAt        DateTime @map("created_at") @default(now()) @db.Timestamp(0)
+  user             User     @relation(fields: [userId], references: [id])
 
   @@map("documents")
   @@schema("insolvencia")

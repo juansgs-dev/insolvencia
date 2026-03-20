@@ -6,14 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Loader2, ArrowLeft, FileText } from "lucide-react"
 import { downloadDocument } from "@/lib/utils/downloadDocument"
 
-type Document = {
+type DocumentModel = {
   id: string
+  documentType: string
   fileType: string
   fileUrl: string
   description: string | null
+  occupation: string
+  hasAssets: boolean
+  hasPayrollLoans: boolean
+  creditorCount: number
+  delinquencyTime: string
+  hasEmbargoes: boolean
+  totalDebtCapital: string
   createdAt: string
   user: {
     fullName: string | null
@@ -27,9 +36,29 @@ function getFileLabel(type: string) {
   return "OTRO"
 }
 
+function formatCurrencyCop(value: string | number) {
+  const numericValue = Number(value)
+  if (Number.isNaN(numericValue)) return "No disponible"
+  return new Intl.NumberFormat("es-CO").format(numericValue)
+}
+
+function yesNoLabel(value: boolean) {
+  return value ? "Si" : "No"
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-1 gap-1 rounded-lg border p-3 sm:grid-cols-[220px_1fr] sm:gap-3">
+      <p className="text-sm font-semibold text-slate-700">{label}</p>
+      <p className="text-sm text-slate-900">{value}</p>
+    </div>
+  )
+}
+
 export default function AdminDocumentsPage() {
-  const [documents, setDocuments] = useState<Document[]>([])
+  const [documents, setDocuments] = useState<DocumentModel[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedDocument, setSelectedDocument] = useState<DocumentModel | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -81,7 +110,11 @@ export default function AdminDocumentsPage() {
 
               <TableBody>
                 {documents.map(doc => (
-                  <TableRow key={doc.id} className="hover:bg-gray-50">
+                  <TableRow
+                    key={doc.id}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => setSelectedDocument(doc)}
+                  >
                     <TableCell className="font-medium">
                       {doc.user.fullName ?? "—"}
                     </TableCell>
@@ -96,7 +129,10 @@ export default function AdminDocumentsPage() {
                     </TableCell>
                     <TableCell className="text-center">
                       <button
-                        onClick={() => downloadDocument(doc.fileUrl)}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          downloadDocument(doc.fileUrl)
+                        }}
                         className="text-blue-600 font-medium hover:underline"
                       >
                         Descargar
@@ -110,6 +146,80 @@ export default function AdminDocumentsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={selectedDocument !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedDocument(null)
+        }}
+      >
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
+          {selectedDocument && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl text-[#1e3a8a]">
+                  Detalle de solicitud de asesoria
+                </DialogTitle>
+                <DialogDescription>
+                  {selectedDocument.user.fullName ?? "Usuario"} - {selectedDocument.user.email}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-3">
+                <DetailRow
+                  label="Fecha de solicitud"
+                  value={new Date(selectedDocument.createdAt).toLocaleString("es-CO")}
+                />
+                <DetailRow
+                  label="Documento adjunto"
+                  value={`Tipo: ${getFileLabel(selectedDocument.fileType)} (${selectedDocument.documentType})`}
+                />
+                <DetailRow
+                  label="¿A qué te dedicas? (labor o profesion)"
+                  value={selectedDocument.occupation}
+                />
+                <DetailRow
+                  label="¿Tienes propiedades o bienes a tu nombre?"
+                  value={yesNoLabel(selectedDocument.hasAssets)}
+                />
+                <DetailRow
+                  label="¿Tienes creditos por libranza o con descuento directo de nomina?"
+                  value={yesNoLabel(selectedDocument.hasPayrollLoans)}
+                />
+                <DetailRow
+                  label="¿A cuantos acreedores les debes?"
+                  value={String(selectedDocument.creditorCount)}
+                />
+                <DetailRow
+                  label="¿Que tiempo de mora tienes con tus obligaciones?"
+                  value={selectedDocument.delinquencyTime}
+                />
+                <DetailRow
+                  label="¿Tienes embargos actualmente?"
+                  value={yesNoLabel(selectedDocument.hasEmbargoes)}
+                />
+                <DetailRow
+                  label="Total de deudas (solo capital)"
+                  value={`$ ${formatCurrencyCop(selectedDocument.totalDebtCapital)}`}
+                />
+                <DetailRow
+                  label="Observaciones"
+                  value={selectedDocument.description?.trim() || "Sin observaciones"}
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button
+                  onClick={() => downloadDocument(selectedDocument.fileUrl)}
+                  className="w-full rounded-xl bg-[#1e3a8a] hover:bg-[#1e40af]"
+                >
+                  Descargar colilla de pago
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,11 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { useAuth } from "@/lib/context/AuthContext"
 
 export function RegisterForm() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { refreshUser } = useAuth()
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -63,7 +64,8 @@ export function RegisterForm() {
         throw new Error(data.error || "Error al crear la cuenta")
       }
 
-      login(data.token, data.usuario)
+      await refreshUser()
+      toast.success("Cuenta creada correctamente")
       router.push("/")
     } catch (error) {
       setError(error instanceof Error ? error.message : "Error al crear la cuenta")

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { createDocument } from "@/lib/services/document.service"
 import { verifyToken } from "@/lib/auth"
+import { advisorySchema } from "@/lib/validations"
 
 export async function POST(req: Request) {
   try {
@@ -28,6 +29,13 @@ export async function POST(req: Request) {
 
     const file = formData.get("file") as File
     const documentType = formData.get("documentType") as string
+    const occupation = formData.get("occupation") as string
+    const hasAssets = formData.get("hasAssets") as string
+    const hasPayrollLoans = formData.get("hasPayrollLoans") as string
+    const creditorCount = formData.get("creditorCount") as string
+    const delinquencyTime = formData.get("delinquencyTime") as string
+    const hasEmbargoes = formData.get("hasEmbargoes") as string
+    const totalDebtCapital = formData.get("totalDebtCapital") as string
     const description = formData.get("description") as string | null
 
     if (!file || !documentType) {
@@ -37,11 +45,36 @@ export async function POST(req: Request) {
       )
     }
 
+    if (documentType !== "last_pay_stub") {
+      return NextResponse.json(
+        { message: "Solo se permite adjuntar la ultima colilla de pago" },
+        { status: 400 }
+      )
+    }
+
+    const parsedData = advisorySchema.safeParse({
+      occupation,
+      hasAssets: hasAssets === "true",
+      hasPayrollLoans: hasPayrollLoans === "true",
+      creditorCount: Number(creditorCount),
+      delinquencyTime,
+      hasEmbargoes: hasEmbargoes === "true",
+      totalDebtCapital: Number(totalDebtCapital),
+      description: description || undefined,
+    })
+
+    if (!parsedData.success) {
+      return NextResponse.json(
+        { message: parsedData.error.issues[0]?.message || "Datos invalidos" },
+        { status: 400 }
+      )
+    }
+
     await createDocument({
       userId: Number(payload.sub),
       file,
       documentType,
-      description: description || undefined,
+      ...parsedData.data,
     })
 
     return NextResponse.json({ success: true })

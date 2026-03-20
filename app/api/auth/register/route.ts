@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { fullName, email, password } = validation.data
+    const { fullName, phoneNumber, email, password } = validation.data
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.create({
       data: {
         fullName,
+        phoneNumber: phoneNumber ?? null,
         email,
         password: hashedPassword,
         isActive: true,
@@ -50,19 +51,28 @@ export async function POST(request: Request) {
       roleName: user.role.name,
     })
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
-        token,
-        usuario: {
-          id: Number(user.id),
+        user: {
+          id: user.id.toString(),
           fullName: user.fullName,
           email: user.email,
           role: user.role.name,
-          roleId: Number(user.roleId),
+          roleId: user.role.id.toString(),
         },
       },
       { status: 201 }
     )
+
+    response.cookies.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    })
+
+    return response
   } catch (error) {
   console.error("REGISTER ERROR:", error);
 

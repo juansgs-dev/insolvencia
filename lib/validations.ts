@@ -26,4 +26,30 @@ export const registerSchema = z.object({
 
 export type registerInput = z.infer<typeof registerSchema>
 
+export const advisorySchema = z.object({
+  occupation: z
+    .string()
+    .min(3, "Debes indicar tu labor o profesion")
+    .max(150, "La labor o profesion no puede exceder 150 caracteres"),
+  hasAssets: z.boolean(),
+  hasPayrollLoans: z.boolean(),
+  creditorCount: z
+    .number({ invalid_type_error: "Debes indicar el numero de acreedores" })
+    .int("El numero de acreedores debe ser entero")
+    .min(1, "Debes tener al menos un acreedor")
+    .max(999, "El numero de acreedores no puede exceder 999"),
+  delinquencyTime: z
+    .string()
+    .trim()
+    .min(1, "Debes indicar el tiempo de mora")
+    .max(100, "El tiempo de mora no puede exceder 100 caracteres"),
+  hasEmbargoes: z.boolean(),
+  totalDebtCapital: z
+    .number({ invalid_type_error: "Debes indicar el capital total adeudado" })
+    .positive("El capital total adeudado debe ser mayor a cero")
+    .max(999999999999.99, "El valor excede el maximo permitido"),
+  description: z.string().max(1000).optional(),
+})
+
+export type AdvisoryInput = z.infer<typeof advisorySchema>
 
