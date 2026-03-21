@@ -34,7 +34,7 @@ export const advisorySchema = z.object({
   hasAssets: z.boolean(),
   hasPayrollLoans: z.boolean(),
   creditorCount: z
-    .number({ invalid_type_error: "Debes indicar el numero de acreedores" })
+    .number({ message: "Debes indicar el numero de acreedores" })
     .int("El numero de acreedores debe ser entero")
     .min(1, "Debes tener al menos un acreedor")
     .max(999, "El numero de acreedores no puede exceder 999"),
@@ -45,7 +45,7 @@ export const advisorySchema = z.object({
     .max(100, "El tiempo de mora no puede exceder 100 caracteres"),
   hasEmbargoes: z.boolean(),
   totalDebtCapital: z
-    .number({ invalid_type_error: "Debes indicar el capital total adeudado" })
+    .number({ message: "Debes indicar el capital total adeudado" })
     .positive("El capital total adeudado debe ser mayor a cero")
     .max(999999999999.99, "El valor excede el maximo permitido"),
   description: z.string().max(1000).optional(),
